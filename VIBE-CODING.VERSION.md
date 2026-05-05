@@ -1,7 +1,7 @@
 # Vibe-Coding Kit Version
 
-**Version:** v7.5.14
-**Effective Date:** 2026-05-03
+**Version:** v7.5.15
+**Effective Date:** 2026-05-05
 
 ## Purpose
 Defines required artifacts + gates used by Doc Audit. This file is the **single source of truth** for the kit bundle version. Per-file `Bundle:` headers were removed in v7.2.2 to prevent version drift -- see changelog below.
@@ -10,6 +10,10 @@ Defines required artifacts + gates used by Doc Audit. This file is the **single 
 ## What Changed in v7.5.1
 - Extracted Evidence Pack Template example block from protocol-v7.md into standards/evidence-pack-template.md (Candidate 2 Stage 1); preserved normative Evidence Pack requirement sections.
 - Note: This commit included both Evidence Pack Template extraction (Candidate 2 Stage 1) and previously unstaged protocol additions (Vibe Skills and Research Readiness Sweep). No behavioral changes were introduced beyond those already validated.
+
+## What Changed in v7.5.15
+- Fixed function-ordering bug in `tools/kit-update.ps1`: `Invoke-SnapshotIsolationEnforcement` was defined after the main `try/catch/finally` block but called within it, causing a false HARD STOP and exit 1 on all NOOP and post-update paths in PowerShell `-File` mode. Moved function definition before the `try` block. No behavior change beyond making the existing fix reachable.
+- This version bump breaks the v7.5.14 consumer NOOP bootstrap deadlock: consumers on v7.5.14 now detect a version difference and pull the repaired script via normal `kit-update.ps1`.
 
 ## What Changed in v7.5.14
 - New consumer start/sync now bootstraps the legacy `/forGPT` packet directory when no packet path exists and no `.vibekit/config.yml` packet path is configured.
