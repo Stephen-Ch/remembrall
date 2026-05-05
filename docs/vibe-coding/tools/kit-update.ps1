@@ -152,6 +152,57 @@ function Get-DirtyPacketClassification {
     return [pscustomobject]$classification
 }
 
+function Invoke-SnapshotIsolationEnforcement {
+    param(
+        [Parameter(Mandatory)][string]$RepoRoot,
+        [Parameter(Mandatory)][string]$DocsRoot,
+        [Parameter(Mandatory)][string]$SubtreePrefix,
+        [switch]$WhatIf
+    )
+
+    $candidates = @(
+        (Join-Path $RepoRoot (Join-Path $DocsRoot "forGPT/VIBE-KIT-SNAPSHOT.md")),
+        (Join-Path $RepoRoot (Join-Path $DocsRoot "VIBE-KIT-SNAPSHOT.md")),
+        (Join-Path $RepoRoot "VIBE-KIT-SNAPSHOT.md"),
+        (Join-Path $RepoRoot (Join-Path $SubtreePrefix "docs/forGPT/VIBE-KIT-SNAPSHOT.md"))
+    )
+
+    $existing = @()
+    foreach ($path in $candidates) {
+        if (Test-Path $path) {
+            $existing += $path
+        }
+    }
+
+    $existing = @($existing | Select-Object -Unique)
+    if ($existing.Count -eq 0) {
+        return "ABSENT"
+    }
+
+    if ($WhatIf) {
+        foreach ($path in $existing) {
+            Write-Host "[WhatIf] Would remove owner-only snapshot artifact: $path" -ForegroundColor Cyan
+        }
+        return "WHATIF(found=$($existing.Count))"
+    }
+
+    $removed = 0
+    foreach ($path in $existing) {
+        try {
+            Remove-Item -Path $path -Force
+            $removed++
+            Write-Host "WARN: Removed owner-only snapshot artifact: $path" -ForegroundColor Yellow
+        } catch {
+            Write-Host "WARN: Failed to remove owner-only snapshot artifact: $path" -ForegroundColor Yellow
+        }
+    }
+
+    if ($removed -gt 0) {
+        return "REMOVED($removed)"
+    }
+    return "WARN(remove failed)"
+}
+
 try {
     $repoRoot = (git rev-parse --show-toplevel 2>&1) -replace '/', '\\'
 } catch {
@@ -517,55 +568,4 @@ try {
     exit 1
 } finally {
     Pop-Location
-}
-
-function Invoke-SnapshotIsolationEnforcement {
-    param(
-        [Parameter(Mandatory)][string]$RepoRoot,
-        [Parameter(Mandatory)][string]$DocsRoot,
-        [Parameter(Mandatory)][string]$SubtreePrefix,
-        [switch]$WhatIf
-    )
-
-    $candidates = @(
-        (Join-Path $RepoRoot (Join-Path $DocsRoot "forGPT/VIBE-KIT-SNAPSHOT.md")),
-        (Join-Path $RepoRoot (Join-Path $DocsRoot "VIBE-KIT-SNAPSHOT.md")),
-        (Join-Path $RepoRoot "VIBE-KIT-SNAPSHOT.md"),
-        (Join-Path $RepoRoot (Join-Path $SubtreePrefix "docs/forGPT/VIBE-KIT-SNAPSHOT.md"))
-    )
-
-    $existing = @()
-    foreach ($path in $candidates) {
-        if (Test-Path $path) {
-            $existing += $path
-        }
-    }
-
-    $existing = @($existing | Select-Object -Unique)
-    if ($existing.Count -eq 0) {
-        return "ABSENT"
-    }
-
-    if ($WhatIf) {
-        foreach ($path in $existing) {
-            Write-Host "[WhatIf] Would remove owner-only snapshot artifact: $path" -ForegroundColor Cyan
-        }
-        return "WHATIF(found=$($existing.Count))"
-    }
-
-    $removed = 0
-    foreach ($path in $existing) {
-        try {
-            Remove-Item -Path $path -Force
-            $removed++
-            Write-Host "WARN: Removed owner-only snapshot artifact: $path" -ForegroundColor Yellow
-        } catch {
-            Write-Host "WARN: Failed to remove owner-only snapshot artifact: $path" -ForegroundColor Yellow
-        }
-    }
-
-    if ($removed -gt 0) {
-        return "REMOVED($removed)"
-    }
-    return "WARN(remove failed)"
 }
