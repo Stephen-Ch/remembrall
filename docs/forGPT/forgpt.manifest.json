@@ -1,0 +1,34 @@
+{
+  "files": [
+    {
+      "dest": "VISION.md",
+      "src": "project/VISION.md",
+      "tier": "core"
+    },
+    {
+      "dest": "EPICS.md",
+      "src": "project/EPICS.md",
+      "tier": "core"
+    },
+    {
+      "dest": "NEXT.md",
+      "src": "project/NEXT.md",
+      "tier": "core"
+    },
+    {
+      "dest": "VIBE-CODING-KIT-README.md",
+      "src": "vibe-coding/README.md",
+      "tier": "extra"
+    },
+    {
+      "dest": "protocol-lite.md",
+      "src": "vibe-coding/protocol-lite.md",
+      "tier": "extra"
+    },
+    {
+      "dest": "QUICKSTART.md",
+      "src": "vibe-coding/QUICKSTART.md",
+      "tier": "extra"
+    }
+  ]
+}
