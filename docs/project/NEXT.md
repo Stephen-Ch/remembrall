@@ -4,18 +4,43 @@ _Updated: 2026-05-06_
 
 ## Active Epic: E1 — Core Private Remembrall Engine
 
-E0 is complete and merged. All architecture and security decisions are documented. E1 is now unblocked.
+E1 is code-complete on branch `e1-core-engine`. Awaiting DB credentials and final verification.
 
 ---
 
-## Active: E1 First Step — Prisma Schema
+## E1 Code Status
 
-Create the Prisma schema from `docs/architecture/ARCHITECTURE.md`:
-- User, Remembrall, Requirement, ShareLink models
-- Non-owner Postgres role configured
-- ENABLE + FORCE ROW LEVEL SECURITY on all user-scoped tables
-- dbForUser wrapper in lib/db.ts
-- ESLint no-restricted-imports CI lint gate wired
+All implementation written and committed. TypeScript clean. ESLint clean.
+
+| Area | Status |
+|---|---|
+| Prisma schema (User, Remembrall, Requirement, ShareLink) | DONE |
+| dbForUser wrapper + ESLint gate | DONE |
+| Auth.js v5 magic link + database sessions | DONE |
+| RLS SQL policies (supabase/setup/) | DONE |
+| CRUD server actions (create/read/update/delete) | DONE |
+| Nesting + cycle detection (MAX_NEST_DEPTH = 5) | DONE |
+| Offline mode (Service Worker + IndexedDB + sync) | DONE |
+| Dashboard + edit + run UI (functional, unstyled) | DONE |
+| 6-scenario RLS test matrix | DONE (needs TEST_DATABASE_URL to run) |
+| Nesting unit tests | DONE |
+| Playwright e2e harness (3 spec files, 7 tests) | DONE |
+
+---
+
+## Remaining Before E1 Closes
+
+These require Stephen's action:
+
+1. **Add Supabase credentials to .env.local** (DATABASE_URL + DIRECT_URL + AUTH_SECRET + AUTH_RESEND_KEY)
+2. **Run Supabase SQL setup** — paste `supabase/setup/01-create-app-role.sql` into Supabase SQL editor
+3. **Run migration** — `npx prisma migrate dev --name e1-initial-schema` (creates tables)
+4. **Run RLS policies** — paste `supabase/setup/02-rls-policies.sql` into Supabase SQL editor
+5. **Run RLS test matrix** — `TEST_DATABASE_URL=<url> npx vitest tests/rls-matrix.test.ts`
+6. **Run Playwright smoke tests** — `PLAYWRIGHT_TEST_MODE=true npx playwright test e2e/smoke.spec.ts`
+7. **Smoke test: sign in and create a Remembrall manually**
+
+When all 7 pass, E1 is complete and E2 is unblocked.
 
 ---
 
@@ -23,13 +48,6 @@ Create the Prisma schema from `docs/architecture/ARCHITECTURE.md`:
 
 ### ✅ E0 — Architecture and Security Decisions
 **Merged:** 2026-05-06
-
-**Completed x-branches:**
-- x/e0-schema-study → `docs/status/e0-schema-study-findings.md`
-- x/e0-auth-research → `docs/status/e0-auth-findings.md`
-- x/e0-rls-pattern → `docs/status/e0-rls-findings.md`
-
-**Docs feature branch merged:** `docs/e0-decisions` → main
 
 **Key decisions locked:**
 - Auth.js v5 + Prisma adapter + database sessions + magic link only
@@ -41,4 +59,4 @@ Create the Prisma schema from `docs/architecture/ARCHITECTURE.md`:
 ---
 
 ## Blocked
-- E2, E3, E4 — blocked on E1 completion
+- E2, E3, E4 — blocked on E1 verification steps above
