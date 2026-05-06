@@ -106,6 +106,8 @@ model Requirement {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
+  checked          Boolean     @default(false)
+
   remembrall       Remembrall  @relation(fields: [remembrallId], references: [id], onDelete: Cascade)
   nestedRemembrall Remembrall? @relation("NestedRemembrall", fields: [nestedRemembrallId], references: [id], onDelete: SetNull)
 }
