@@ -2,38 +2,43 @@
 
 _Updated: 2026-05-06_
 
-## Active Epic: E0 — Architecture and Security Decisions
+## Active Epic: E1 — Core Private Remembrall Engine
 
-All three research x-branches complete. Decisions confirmed. E0 docs feature branch is the active next step.
-
----
-
-## Completed X-Branches
-
-### ✅ x/e0-schema-study
-**Findings:** `docs/status/e0-schema-study-findings.md`
-
-### ✅ x/e0-auth-research
-**Findings:** `docs/status/e0-auth-findings.md`
-**Decisions confirmed (2026-05-06, Stephen):**
-- ✅ Magic link only for MVP — no email/password
-- ✅ Recipient state migration deferred to E2
-
-### ✅ x/e0-rls-pattern
-**Findings:** `docs/status/e0-rls-findings.md`
-**Deliverables produced:** dbForUser wrapper spec + CI lint gate spec
+E0 is complete and merged. All architecture and security decisions are documented. E1 is now unblocked.
 
 ---
 
-## Active: E0 Docs Feature Branch
+## Active: E1 First Step — Prisma Schema
 
-Create docs feature branch:
-- Populate `docs/overlays/remembrall-decisions.md` with all confirmed E0 answers
-- Create `docs/architecture/ARCHITECTURE.md` with data model, RLS pattern, URL strategy
-- Product Owner (Stephen) reviews and approves
-- Merge to main → E1 unblocked
+Create the Prisma schema from `docs/architecture/ARCHITECTURE.md`:
+- User, Remembrall, Requirement, ShareLink models
+- Non-owner Postgres role configured
+- ENABLE + FORCE ROW LEVEL SECURITY on all user-scoped tables
+- dbForUser wrapper in lib/db.ts
+- ESLint no-restricted-imports CI lint gate wired
+
+---
+
+## Completed Epics
+
+### ✅ E0 — Architecture and Security Decisions
+**Merged:** 2026-05-06
+
+**Completed x-branches:**
+- x/e0-schema-study → `docs/status/e0-schema-study-findings.md`
+- x/e0-auth-research → `docs/status/e0-auth-findings.md`
+- x/e0-rls-pattern → `docs/status/e0-rls-findings.md`
+
+**Docs feature branch merged:** `docs/e0-decisions` → main
+
+**Key decisions locked:**
+- Auth.js v5 + Prisma adapter + database sessions + magic link only
+- dbForUser wrapper + FORCE RLS + non-owner Postgres role
+- ShareLink table for private tokens
+- Offline mode is E1 scope (Service Worker + IndexedDB)
+- Recipient state migration is E2 scope
 
 ---
 
 ## Blocked
-- E1, E2, E3, E4 — all blocked on E0 docs feature branch merge
+- E2, E3, E4 — blocked on E1 completion
