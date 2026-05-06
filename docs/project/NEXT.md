@@ -4,7 +4,7 @@ _Updated: 2026-05-06_
 
 ## Active Epic: E0 — Architecture and Security Decisions
 
-All three research x-branches complete. E0 is in the decision/docs phase.
+All three research x-branches complete. Decisions confirmed. E0 docs feature branch is the active next step.
 
 ---
 
@@ -15,9 +15,9 @@ All three research x-branches complete. E0 is in the decision/docs phase.
 
 ### ✅ x/e0-auth-research
 **Findings:** `docs/status/e0-auth-findings.md`
-**Decisions required before E0 closes:**
-- Magic link only vs. email/password + magic link for MVP (recommend magic link only)
-- Recipient state migration deferred to E2 — confirm acceptable
+**Decisions confirmed (2026-05-06, Stephen):**
+- ✅ Magic link only for MVP — no email/password
+- ✅ Recipient state migration deferred to E2
 
 ### ✅ x/e0-rls-pattern
 **Findings:** `docs/status/e0-rls-findings.md`
@@ -36,5 +36,4 @@ Create docs feature branch:
 ---
 
 ## Blocked
-- E1, E2, E3, E4 — all blocked on E0 completion
-- E0 completion blocked on two Stephen/GPT decisions (see x/e0-auth-research above)
+- E1, E2, E3, E4 — all blocked on E0 docs feature branch merge
