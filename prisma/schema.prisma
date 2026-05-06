@@ -1,0 +1,126 @@
+// This is the Remembrall Prisma schema.
+// It is the source of truth for the data model.
+// Do NOT import PrismaClient anywhere outside lib/db.ts.
+//
+// Auth.js v5 (NextAuth) requires specific model names and fields.
+// The User, Account, Session, and VerificationToken models below
+// satisfy the Prisma adapter contract exactly.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // DATABASE_URL connects as the non-owner app role (RLS enforced)
+  url       = env("DATABASE_URL")
+  // DIRECT_URL connects as the superuser for migrations only
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Auth.js / NextAuth Prisma Adapter models ────────────────────────────────
+// These satisfy the @auth/prisma-adapter contract.
+// Field names and types must not be changed without updating the adapter config.
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts   Account[]
+  sessions   Session[]
+  remembralls Remembrall[]
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+// ─── Application models ───────────────────────────────────────────────────────
+
+model Remembrall {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String
+  ownerId     String
+  isPublic    Boolean   @default(false)
+  publishedAt DateTime?
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  owner        User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  requirements Requirement[]
+  shareLinks   ShareLink[]
+  // Back-relation for Requirements that nest this Remembrall
+  nestedIn     Requirement[] @relation("NestedRemembrall")
+
+  @@unique([ownerId, slug])
+}
+
+model Requirement {
+  id                 String   @id @default(cuid())
+  remembrallId       String
+  text               String
+  order              Int
+  // Nullable FK for nested Remembrall. Depth-limited to 5 levels at the application layer.
+  nestedRemembrallId String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  remembrall       Remembrall  @relation(fields: [remembrallId], references: [id], onDelete: Cascade)
+  nestedRemembrall Remembrall? @relation("NestedRemembrall", fields: [nestedRemembrallId], references: [id], onDelete: SetNull)
+}
+
+model ShareLink {
+  id            String    @id @default(cuid())
+  token         String    @unique @default(uuid())
+  remembrallId  String
+  // Denormalized owner ID captured at creation time.
+  // Stays correct even if the Remembrall is later transferred (post-MVP).
+  createdById   String
+  createdAt     DateTime  @default(now())
+  expiresAt     DateTime?
+  revokedAt     DateTime?
+  accessCount   Int       @default(0)
+
+  remembrall Remembrall @relation(fields: [remembrallId], references: [id], onDelete: Cascade)
+}
