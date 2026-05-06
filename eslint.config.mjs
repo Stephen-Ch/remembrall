@@ -27,6 +27,12 @@ const eslintConfig = [
       ],
     },
   },
+  {
+    files: ["lib/db.ts"],
+    rules: {
+      "no-restricted-imports": "off",
+    },
+  },
 ]
 
 export default eslintConfig
